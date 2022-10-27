@@ -10,14 +10,24 @@ sender = 'gxxxxxe@ford.com'
 
 
 def recipients_list_sender(recipientList:list, message):
-  msg = MIMEText(message)
+  try:
+    s = smtplib.SMTP("arxxxxxx.com", 25)
+    s.set_debuglevel(1)
+    s.starttls()
+    s.login("gxxxxxxxxxxxx@ford.com", "xxxxxxxxxxxxxxxxxxTHN")
+
+    sender = 'gxxxxxxxxxxxx@ford.com'
+    msg = MIMEText(message)
   
-  recipients = recipientList
-  msg['Subject'] = "GCP Alert"
-  msg['From'] = sender
-  msg['To'] = ", ".join(recipients)
-  s.sendmail(sender, recipients, msg.as_string())
-  print("email Sent!")
+    recipients = recipientList
+    msg['Subject'] = "GCP Alert"
+    msg['From'] = sender
+    msg['To'] = ", ".join(recipients)
+    s.sendmail(sender, recipients, msg.as_string())
+    print("email Sent!")
+    s.quit()
+  except:
+    print("An error has occurred")
 
 
 # recipients_list_sender(['szafersa'],'hello')
