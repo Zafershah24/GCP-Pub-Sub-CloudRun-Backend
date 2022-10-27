@@ -1,7 +1,12 @@
 import base64
 import os
-
+import json
 from flask import Flask, request, jsonify
+import emailsender
+import base64
+os.environ.setdefault("GCLOUD_PROJECT", "df-szafersa-s")
+
+
 
 
 app = Flask(__name__)
@@ -13,26 +18,36 @@ app = Flask(__name__)
 # [START run_pubsub_handler]
 @app.route("/", methods=["POST"])
 def index():
-    envelope = request.get_json()
-    if not envelope:
-        msg = "no Pub/Sub message received"
-        print(f"error: {msg}")
-        return f"Bad Request: {msg}", 400
-
-    if not isinstance(envelope, dict) or "message" not in envelope:
-        msg = "invalid Pub/Sub message format"
-        print(f"error: {msg}")
-        return f"Bad Request: {msg}", 400
-
-    pubsub_message = envelope["message"]
-
-    name = "World"
+    # data = request.get_data()
+    # data=data.decode("utf-8")
+    # # print(type(data))
+    # data=json.loads(data)
+    data=request.get_json()
+    # Decoding Base64 pub sub message
+    pubsub_message = data["message"]
     if isinstance(pubsub_message, dict) and "data" in pubsub_message:
-        name = base64.b64decode(pubsub_message["data"]).decode("utf-8").strip()
+        data = base64.b64decode(pubsub_message["data"]).decode("utf-8").strip()
+    print(data)
+    print(type(data))
+    #converting to Dictionary/JSON
+    data = json.loads(data)
+    print(type(data))
+    
+    # prj_id=str(prj_id)
+    mss=data['message']
+    recipients=data['receivers']
+    print(type(recipients))
+    # query = f"""SELECT DISTINCT cdsid FROM `df-szafersa-s.event_db.denormal` where project_id={prj_id};"""
+    # print(prj_id)
+    # print(mss)
+    # query_job = client.query(query)
+    # a=[]
+    # for row in query_job:
+    #     a.append(str(row[0]))
+        
+    emailsender.recipients_list_sender(recipients,mss)
 
-    print(f"Hello {name}!")
-
-    return ("", 204)
+    return jsonify(mss,recipients)
 
 
 # [END run_pubsub_handler]
@@ -46,7 +61,7 @@ def pst_api():
 
     data = request.get_json()
     messge=data['message']
-    return jsonify({'output':'Hello '+ messge})
+    return jsonify({'output':'Successfully delivered ! : '+ messge})
 
 if __name__ == "__main__":
     PORT = int(os.getenv("PORT")) if os.getenv("PORT") else 8080
