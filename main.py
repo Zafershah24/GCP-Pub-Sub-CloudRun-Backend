@@ -18,20 +18,28 @@ app = Flask(__name__)
 # [START run_pubsub_handler]
 @app.route("/", methods=["POST"])
 def index():
-    # data = request.get_data()
-    # data=data.decode("utf-8")
-    # # print(type(data))
-    # data=json.loads(data)
-    data=request.get_json()
+    data = request.get_data()
+    data=data.decode("utf-8")
+    print(type(data))
+    data=json.loads(data)
+    
+    # data=request.get_json()
+    print(type(data))
+   
     # Decoding Base64 pub sub message
     pubsub_message = data["message"]
     if isinstance(pubsub_message, dict) and "data" in pubsub_message:
         data = base64.b64decode(pubsub_message["data"]).decode("utf-8").strip()
     print(data)
     print(type(data))
-    #converting to Dictionary/JSON
-    data = json.loads(data)
+    data = data.replace("'", '"') 
+    data=json.loads(data)
     print(type(data))
+    print(data)
+    
+    #converting to Dictionary/JSON
+    # data = json.loads(data)
+    # print(type(data))
     
     # prj_id=str(prj_id)
     mss=data['message']
@@ -61,7 +69,7 @@ def pst_api():
 
     data = request.get_json()
     messge=data['message']
-    return jsonify({'output':'Successfully delivered ! : '+ messge})
+    return jsonify({'output':'Hello '+ messge})
 
 if __name__ == "__main__":
     PORT = int(os.getenv("PORT")) if os.getenv("PORT") else 8080
