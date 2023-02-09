@@ -9,6 +9,8 @@ COPY requirements.txt ./
 
 # Install production dependencies.
 RUN pip install -r requirements.txt
+RUN pip install requests
+RUN pip install bs4
 
 # Copy local code to the container image.
 ENV APP_HOME /app
